@@ -1,8 +1,10 @@
 # Secure AWS Infrastructure with Terraform + CI Security Pipeline
 
-A security-focused Infrastructure as Code (IaC) project demonstrating how AWS infrastructure can be designed with Terraform and automatically validated through a GitHub Actions CI pipeline.
+![Lab 5 — Secure AWS Terraform CI/CD](evidence/lab5-thumbnail.png)
 
-The project emphasizes secure-by-default architecture, automated security scanning, least privilege, logging, encryption, and cost-conscious cloud design.
+A security-focused **Infrastructure as Code (IaC)** portfolio project demonstrating secure AWS architecture with Terraform and automated validation through a GitHub Actions CI security pipeline.
+
+The project emphasizes **secure-by-default design, least privilege, logging, encryption, automated security scanning, deployment safety, and cloud cost awareness**.
 
 ## Architecture
 
@@ -44,6 +46,10 @@ Key controls implemented include:
 ├── .github/
 │   └── workflows/
 │       └── terraform-ci.yml
+├── evidence/
+│   ├── checkov-findings.jpg
+│   ├── ci-success.jpg
+│   └── lab5-thumbnail.png
 ├── iam.tf
 ├── network.tf
 ├── provider.tf
@@ -79,27 +85,33 @@ Security Findings / CI Result
 
 The pipeline performs repository checkout, Terraform installation, `terraform init -backend=false`, `terraform fmt -check -recursive`, `terraform validate`, and Checkov Terraform security scanning.
 
-This provides automated validation and security feedback whenever infrastructure code changes.
+This provides automated validation and security feedback whenever infrastructure code changes while deliberately avoiding automatic AWS deployment.
 
-## Security Scan Results
+## Evidence
 
-Current Checkov scan:
+### GitHub Actions CI Pipeline
+
+The pipeline validates Terraform formatting and configuration and runs the Checkov security scan automatically.
+
+![GitHub Actions CI evidence](evidence/ci-success.jpg)
+
+### Checkov Security Analysis
+
+The latest documented local Checkov scan produced:
 
 - **61 passed checks**
 - **8 identified findings**
 - **0 skipped checks**
 
-The remaining findings were reviewed rather than blindly remediated simply to achieve a zero-finding scan.
+![Checkov security scan findings](evidence/checkov-findings.jpg)
 
-Examples include cross-region S3 replication, S3 event notifications, customer-managed KMS encryption for selected logging resources, and security-group attachment to compute resources.
+The remaining findings were reviewed rather than blindly remediated simply to achieve a zero-finding scan. Examples include cross-region S3 replication, S3 event notifications, customer-managed KMS encryption for selected logging resources, and security-group attachment to compute resources.
 
-Some controls would require additional AWS services, resources, or cost that are outside the scope of this deliberately cost-conscious lab.
-
-This demonstrates an important security-engineering principle: scanner findings require risk analysis and architectural context rather than automatic remediation.
+Some controls would require additional AWS services, resources, operational complexity, or potential cost that are outside the scope of this deliberately cost-conscious lab. This demonstrates an important security-engineering principle: **scanner findings require risk analysis and architectural context rather than automatic remediation**.
 
 ## Deployment Safety
 
-The CI pipeline intentionally does **not** execute `terraform apply`.
+The CI pipeline intentionally does **not** execute `terraform apply` and does not require AWS credentials or long-lived cloud secrets.
 
 Its purpose is to validate and security-scan infrastructure code without automatically provisioning AWS resources.
 
@@ -123,12 +135,12 @@ Some defined services, including CloudWatch logging and VPC Flow Logs, may incur
 - Git and GitHub workflow
 - GitHub Actions CI
 - Automated IaC security scanning with Checkov
-- Security finding analysis
+- Security finding analysis and risk-based remediation decisions
 - Cloud cost awareness
 - Secure infrastructure lifecycle practices
 
 ## Lessons Learned
 
-This project demonstrates that cloud security is not simply about making every automated scanner check green. Security controls must be evaluated against architecture, operational requirements, risk, and cost.
+Cloud security is not simply about making every automated scanner check green. Security controls must be evaluated against architecture, operational requirements, risk, and cost.
 
-Automating Terraform validation and security scanning through CI provides early feedback before infrastructure reaches a deployment stage.
+Automating Terraform validation and security scanning through CI provides early feedback before infrastructure reaches a deployment stage, while separating validation from deployment reduces unnecessary cloud exposure and accidental cost.
