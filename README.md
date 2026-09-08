@@ -97,7 +97,7 @@ The pipeline validates Terraform formatting and configuration and runs the Check
 
 ### Checkov Security Analysis
 
-The latest documented local Checkov scan produced:
+The original evidence screenshot recorded this historical local scan:
 
 - **61 passed checks**
 - **8 identified findings**
@@ -105,7 +105,7 @@ The latest documented local Checkov scan produced:
 
 ![Checkov security scan findings](evidence/checkov-findings.jpg)
 
-The remaining findings were reviewed rather than blindly remediated simply to achieve a zero-finding scan. Examples include cross-region S3 replication, S3 event notifications, customer-managed KMS encryption for selected logging resources, and security-group attachment to compute resources.
+The current pipeline fails on unreviewed findings. Accepted exceptions are attached to specific resources with reasons in the Terraform source, so a new failure on another resource is not globally suppressed. Examples include cross-region S3 replication, S3 event notifications, customer-managed KMS encryption for selected logging resources, and security-group attachment to compute resources.
 
 Some controls would require additional AWS services, resources, operational complexity, or potential cost that are outside the scope of this deliberately cost-conscious lab. This demonstrates an important security-engineering principle: **scanner findings require risk analysis and architectural context rather than automatic remediation**.
 
@@ -144,3 +144,41 @@ Some defined services, including CloudWatch logging and VPC Flow Logs, may incur
 Cloud security is not simply about making every automated scanner check green. Security controls must be evaluated against architecture, operational requirements, risk, and cost.
 
 Automating Terraform validation and security scanning through CI provides early feedback before infrastructure reaches a deployment stage, while separating validation from deployment reduces unnecessary cloud exposure and accidental cost.
+## Review improvements
+
+- Added S3 access-log delivery permission restricted by source bucket ARN and account, plus HTTPS-only bucket policies.
+- Added access-log lifecycle expiration for both current and noncurrent versions.
+- Explicitly associated the private subnet with an isolated route table.
+- Corrected Flow Logs permissions: `DescribeLogGroups` uses its required wildcard scope; stream operations remain scoped to the lab log group.
+- Replaced global Checkov soft-fail with resource-specific exceptions. CI success means enabled checks passed; it does not mean every possible production control is implemented.
+
+### Accepted scanner exceptions
+
+| Check | Resource | Lab decision |
+|---|---|---|
+| CKV_AWS_158 | Flow log group | Service encryption; no customer-managed KMS key |
+| CKV2_AWS_5 | Security group | No compute workload provisioned |
+| CKV2_AWS_62 | Both S3 buckets | No application notification consumer |
+| CKV_AWS_144 | Both S3 buckets | Single-region lab; no cross-region replication |
+| CKV_AWS_145 | Access-log bucket | SSE-S3 log encryption |
+
+Review these exceptions before adapting the configuration to production. Original screenshots remain historical evidence, not a current deployment or scan result.
+
+### Validate locally without deployment
+
+```bash
+terraform init -backend=false -input=false
+terraform fmt -check -recursive
+terraform validate
+checkov -d . --framework terraform
+```
+
+### Cleanup after an optional deployment
+
+Use the original state and review `terraform plan -destroy` before running `terraform destroy`. S3 buckets containing objects or versions may block destruction. Stop lab log producers, review any evidence you need to keep, then empty only the identified lab buckets, including versions and delete markers, before retrying. Do not delete state as a substitute for deleting resources. Check the AWS account for remaining lab buckets and log groups afterward.
+
+[S3 log delivery permissions reference](https://docs.aws.amazon.com/AmazonS3/latest/userguide/enable-server-access-logging.html).
+
+## Related portfolio labs
+
+[Lab 1: Linux support & troubleshooting](https://github.com/ozangirginwork-wq/linux-it-support-troubleshooting-lab) · [Lab 2: Windows Server & Active Directory](https://github.com/ozangirginwork-wq/windows-server-active-directory-lab) · [Lab 3: Python IT automation](https://github.com/ozangirginwork-wq/python-it-cloud-automation-lab) · [Lab 4: AWS security incident investigation](https://github.com/ozangirginwork-wq/aws-security-incident-response-lab) · [Lab 6: AWS automated incident response](https://github.com/ozangirginwork-wq/aws-security-automated-incident-response)

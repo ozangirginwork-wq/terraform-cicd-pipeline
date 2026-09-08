@@ -66,6 +66,7 @@ resource "aws_default_security_group" "default" {
 
 # CloudWatch Log Group for VPC Flow Logs
 resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
+  #checkov:skip=CKV_AWS_158: Lab uses CloudWatch service encryption; customer-managed KMS key is outside the lab cost scope.
   name              = "/aws/vpc/lab5-flow-logs"
   retention_in_days = 365
 
@@ -109,10 +110,14 @@ resource "aws_iam_role_policy" "vpc_flow_logs" {
         Action = [
           "logs:CreateLogStream",
           "logs:PutLogEvents",
-          "logs:DescribeLogGroups",
           "logs:DescribeLogStreams"
         ]
         Resource = "${aws_cloudwatch_log_group.vpc_flow_logs.arn}:*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["logs:DescribeLogGroups"]
+        Resource = "*"
       }
     ]
   })
@@ -127,7 +132,22 @@ resource "aws_flow_log" "lab5_vpc" {
   iam_role_arn             = aws_iam_role.vpc_flow_logs.arn
   max_aggregation_interval = 60
 
+  depends_on = [aws_iam_role_policy.vpc_flow_logs]
+
   tags = {
     Name = "lab5-vpc-flow-log"
   }
+}
+
+# Keep the private subnet isolated independently of the VPC main route table.
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.lab5_vpc.id
+  tags = {
+    Name = "lab5-private-route-table"
+  }
+}
+
+resource "aws_route_table_association" "private" {
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.private.id
 }
