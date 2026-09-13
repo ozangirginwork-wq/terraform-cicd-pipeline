@@ -13,7 +13,7 @@ The Terraform configuration defines:
 - AWS VPC with public and private subnets
 - Internet Gateway and controlled routing
 - Restricted default security group
-- Security group with no inbound access and HTTPS-only outbound traffic
+- Security group with no inbound access and outbound TCP/443 rules
 - VPC Flow Logs
 - CloudWatch log storage with 365-day retention
 - IAM roles and least-privilege policies
@@ -22,6 +22,8 @@ The Terraform configuration defines:
 - S3 encryption, versioning, lifecycle controls, and public-access blocking
 
 No EC2 instances, NAT Gateways, load balancers, RDS databases, or other unnecessary compute resources are required.
+
+TCP/443 rules restrict ports, not application protocols or destinations. The private subnet has no internet route; allowing outbound TCP/443 does not create internet connectivity.
 
 ## Security Controls
 
@@ -181,4 +183,9 @@ Use the original state and review `terraform plan -destroy` before running `terr
 
 ## Related portfolio labs
 
-[Lab 1: Linux support & troubleshooting](https://github.com/ozangirginwork-wq/linux-it-support-troubleshooting-lab) · [Lab 2: Windows Server & Active Directory](https://github.com/ozangirginwork-wq/windows-server-active-directory-lab) · [Lab 3: Python IT automation](https://github.com/ozangirginwork-wq/python-it-cloud-automation-lab) · [Lab 4: AWS security incident investigation](https://github.com/ozangirginwork-wq/aws-security-incident-response-lab) · [Lab 6: AWS automated incident response](https://github.com/ozangirginwork-wq/aws-security-automated-incident-response)
+- [Lab 1: Linux support & troubleshooting](https://github.com/ozangirginwork-wq/linux-it-support-troubleshooting-lab)
+- [Lab 2: Windows Server & Active Directory](https://github.com/ozangirginwork-wq/windows-server-active-directory-lab)
+- [Lab 3: Python IT automation](https://github.com/ozangirginwork-wq/python-it-cloud-automation-lab)
+- [Lab 4: AWS security incident investigation](https://github.com/ozangirginwork-wq/aws-security-incident-response-lab)
+- [Lab 6: AWS automated incident response](https://github.com/ozangirginwork-wq/aws-security-automated-incident-response)
+- [Lab 7: Secure Kubernetes deployment & troubleshooting](https://github.com/ozangirginwork-wq/secure-kubernetes-deployment-lab)
