@@ -6,6 +6,14 @@ A security-focused **Infrastructure as Code (IaC)** portfolio project demonstrat
 
 The project emphasizes **secure-by-default design, least privilege, logging, encryption, automated security scanning, deployment safety, and cloud cost awareness**.
 
+## Evidence highlights
+
+[View three selected screenshots with captions](evidence/highlights/README.md) from the original lab work, cropped and reviewed for privacy. These historical captures were curated on September 25, 2026; they are not new test runs.
+
+![Terraform syntax error and recovery](evidence/highlights/03-terraform-validation-recovery.png)
+
+*The original terminal shows an unterminated object constructor in iam.tf followed by a successful terraform validate. This validates configuration syntax, not AWS deployment.*
+
 ## Architecture
 
 The Terraform configuration defines:
